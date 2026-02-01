@@ -1,0 +1,36 @@
+import requests
+import os
+
+TOKEN = os.environ["8503588710:AAHEns2zfoY6jpBOydSVmfvv0kEdi0h-iWc"]
+CHAT_ID = os.environ["7173178619"]
+
+lat = 53.48
+lon = -2.24
+
+api = (
+    "https://api.open-meteo.com/v1/forecast"
+    f"?latitude={lat}&longitude={lon}"
+    "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max"
+    "&current_weather=true"
+    "&timezone=Europe%2FLondon"
+)
+
+data = requests.get(api, timeout=20).json()
+
+current = data["current_weather"]
+daily = data["daily"]
+
+msg = (
+    "🌤 Manchester Weather\n\n"
+    f"Now: {current['temperature']}°C  |  Wind: {current['windspeed']} km/h\n\n"
+    "Today:\n"
+    f"High: {daily['temperature_2m_max'][0]}°C\n"
+    f"Low:  {daily['temperature_2m_min'][0]}°C\n"
+    f"Rain: {daily['precipitation_probability_max'][0]}%\n"
+)
+
+requests.post(
+    f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+    data={"chat_id": CHAT_ID, "text": msg},
+    timeout=20
+)
